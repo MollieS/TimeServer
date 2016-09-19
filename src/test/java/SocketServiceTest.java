@@ -44,14 +44,30 @@ public class SocketServiceTest {
 
     @Test
     public void sendsTheTime() throws IOException {
-        socketService.serve(9000, new MockTimeServer());
+        MockTimeServer mockTimeServer = new MockTimeServer();
+        socketService.serve(9000, mockTimeServer);
         Socket socket = new Socket("localhost", 9000);
-        InputStream inputStream = socket.getInputStream();
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        BufferedReader bufferedReader = mockTimeServer.getBufferedReader(socket);
         String time = bufferedReader.readLine();
         socket.close();
         assertEquals("14:00", time);
+    }
+
+    @Test
+    public void canHandleMultipleSimultaneousConnections() throws IOException {
+        MockTimeServer mockTimeServer = new MockTimeServer();
+        socketService.serve(9000, mockTimeServer);
+        Socket socket1 = new Socket("localhost", 9000);
+        BufferedReader bufferedReader1 = mockTimeServer.getBufferedReader(socket1);
+
+        Socket socket2 = new Socket("localhost", 9000);
+        BufferedReader bufferedReader2 = mockTimeServer.getBufferedReader(socket2);
+
+        String time1 = bufferedReader1.readLine();
+        String time2 = bufferedReader2.readLine();
+
+        assertEquals("14:00", time1);
+        assertEquals("14:00", time2);
     }
 
     private void connect(int port) {
@@ -73,11 +89,26 @@ public class SocketServiceTest {
         @Override
         public void serve(Socket socket) {
             try {
-                PrintStream printStream = new PrintStream(socket.getOutputStream());
+                PrintStream printStream = getPrintStream(socket);
                 printStream.println(LocalTime.of(14, 00));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+        public PrintStream getPrintStream(Socket socket) throws IOException {
+            OutputStream outputStream = socket.getOutputStream();
+            PrintStream printStream = new PrintStream(outputStream);
+            return printStream;
+
+        }
+
+        public BufferedReader getBufferedReader(Socket socket) throws IOException {
+            InputStream inputStream = socket.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            return bufferedReader;
+        }
     }
+
 }

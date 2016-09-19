@@ -10,6 +10,7 @@ public class TimeServer implements SocketServer {
         try {
             PrintStream printStream = new PrintStream(socket.getOutputStream());
             printStream.println("Time now: " + LocalTime.now());
+            printStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

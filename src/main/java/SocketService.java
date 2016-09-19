@@ -7,10 +7,10 @@ public class SocketService {
     private ServerSocket serverSocket = null;
     private Thread socketThread = null;
     private boolean running = false;
-    private SocketServer itsServer;
+    private SocketServer server;
 
     public void serve(int port, SocketServer server) throws IOException {
-        itsServer = server;
+        this.server = server;
         serverSocket = new ServerSocket(port);
         socketThread = createServerThread();
         socketThread.start();
@@ -28,8 +28,7 @@ public class SocketService {
     private void acceptAndServeConnection() {
         try {
             Socket socket = serverSocket.accept();
-            itsServer.serve(socket);
-            socket.close();
+            new Thread(new ServiceRunnable(socket)).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,5 +37,24 @@ public class SocketService {
     public void close() throws IOException {
         running = false;
         serverSocket.close();
+    }
+
+    public class ServiceRunnable implements Runnable {
+
+        private Socket socket;
+
+        public ServiceRunnable(Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+            try {
+                server.serve(socket);
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
