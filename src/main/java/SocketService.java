@@ -7,7 +7,6 @@ public class SocketService {
     private ServerSocket serverSocket = null;
     private Thread socketThread = null;
     private boolean running = false;
-    private int connections = 0;
     private SocketServer itsServer;
 
     public void serve(int port, SocketServer server) throws IOException {
@@ -39,9 +38,5 @@ public class SocketService {
     public void close() throws IOException {
         running = false;
         serverSocket.close();
-    }
-
-    public int connections() {
-        return connections;
     }
 }
