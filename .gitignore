@@ -2,3 +2,5 @@
 gradlew.bat
 build/
 .gradle
+META-INF/
+*.jar
