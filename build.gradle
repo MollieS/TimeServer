@@ -2,8 +2,11 @@ group 'TimeServer'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'application'
 
-sourceCompatibility = 1.5
+mainClassName = "main.Main"
+
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()

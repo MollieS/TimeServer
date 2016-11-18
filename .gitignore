@@ -1,4 +1,6 @@
 .idea/
 gradlew.bat
 build/
-.gradle/
+.gradle
+META-INF/
+*.jar
